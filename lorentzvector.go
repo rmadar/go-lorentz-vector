@@ -2,85 +2,121 @@ package lv
 
 import (
 	"math"
+	"github.com/golang/geo/r3"
 )
 
 // 4-vector type
 type FourVec struct {
-	Px float64
-	Py float64
-	Pz float64
-	E  float64
+	Pvec r3.Vector
+	P4   float64
 }
 
-// Creator of the type FourVec using (px, py, pz, E)
+// Creator of the type FourVec using (px, py, pz, e)
 func NewFourVecPxPyPzE(px, py, pz, e float64) (v FourVec) {
-	v.Px = px
-	v.Py = py
-	v.Pz = pz
-	v.E  = e
+	v.Pvec.X = px
+	v.Pvec.Y = py
+	v.Pvec.Z = pz
+	v.P4 = e
 	return v
 }
 
-// Creator of the type FourVec using (px, py, pz, M)
+// Creator of the type FourVec using (px, py, pz, m)
 func NewFourVecPxPyPzM(px, py, pz, m float64) (v FourVec) {
-	v.Px = px
-	v.Py = py
-	v.Pz = pz
-	v.E  = math.Sqrt(v.P2() + math.Pow(m, 2))
+	v.Pvec.X = px
+	v.Pvec.Y = py
+	v.Pvec.Z = pz
+	v.P4 = math.Sqrt(v.P2() + math.Pow(m, 2))
 	return v
 }
 
 // Creator of type FourVec using (pT, Eta, Phi and M)
 func NewFourVecPtEtaPhiM(pt, eta, phi, m float64) (v FourVec) {
-	v.Px = pt  * math.Cosh(eta)
-	v.Py = eta * math.Sinh(eta)
-	v.Pz = phi * pt * math.Cos(phi) * v.Px
-	v.E  = math.Sqrt(v.P2() + math.Pow(m, 2))
+	v.Pvec.X = pt * math.Cos(phi)
+	v.Pvec.Y = pt * math.Sin(phi)
+	v.Pvec.Z = pt * math.Sinh(eta)
+	v.P4  = math.Sqrt(v.P2() + math.Pow(m, 2))
 	return v
 }
 
 // Creator of type FourVec using (pT, Eta, Phi and E)
 func NewFourVecPtEtaPhiE(pt, eta, phi, e float64) (v FourVec) {
-	v.Px = pt  * math.Cosh(eta)
-	v.Py = eta * math.Sinh(eta)
-	v.Pz = phi * pt * math.Cos(phi) * v.Px
-	v.E  = e
+	v.Pvec.X = pt  * math.Cosh(eta)
+	v.Pvec.Y = eta * math.Sinh(eta)
+	v.Pvec.Z = phi * pt * math.Cos(phi) * v.Pvec.X
+	v.P4 = e
 	return v
 }
 
-// Get Eta
-func (v *FourVec) Eta() (float64){
-	return 1.
+// Get Px
+func (v *FourVec) Px() (float64){
+	return v.Pvec.X
 }
 
-// Get Phi
-func (v *FourVec) Phi() (float64){
-	return 1.
+// Get Py
+func (v *FourVec) Py() (float64){
+	return v.Pvec.Y
 }
 
-// Squared distance of the 3-vector
-func (v *FourVec) P2() (float64) {
-	return math.Pow(v.Px, 2) + math.Pow(v.Py, 2) + math.Pow(v.Pz, 2)
+// Get Pz
+func (v *FourVec) Pz() (float64){
+	return v.Pvec.Z
 }
 
-// Distance of the 3-vector
-func (v *FourVec) P() (float64) {
-	return math.Sqrt(v.P2())
+// Get E
+func (v *FourVec) E() (float64){
+	return v.P4
 }
 
 // Transverse momentum
 func (v *FourVec) Pt() (float64) {
-	return math.Sqrt(v.P2() - math.Pow(v.Pz, 2))
+	px, py := v.Pvec.X, v.Pvec.Y
+	return math.Sqrt(px*px + py*py)
 }
 
-// Transverse momentum
+// Get Eta
+func (v *FourVec) Eta() (float64){
+	p, pz := v.P(), v.Pz()
+	return 0.5*math.Log( (p+pz)/(p-pz) );
+}
+
+// Get Phi
+func (v *FourVec) Phi() (float64){
+	return 
+}
+
+// Get rapidity
+func (v *FourVec) Rapidity() (float64) {
+	e, pz := v.E(), v.Pz()
+	return 0.5*math.Log( (e+pz)/(e-pz) );
+}
+
+// Squared distance of the 3-vector
+func (v *FourVec) P2() (float64) {
+	return v.Pvec.Norm2() 
+}
+
+// Distance of the 3-vector
+func (v *FourVec) P() (float64) {
+	return v.Pvec.Norm() 
+}
+
+// Transverse energy
 func (v *FourVec) Et() (float64) {
-	return 1.0
+	e2  := v.E() * v.E()
+	pt2 := v.Pt() * v.Pt()
+	p2  := v.P2()
+	return math.Sqrt( e2 * pt2/p2 )
 }
 
-// Invariant mass
+// Lorentz scalar product
+func (v *FourVec) Dot(u FourVec) (float64) {
+	pv, pu := v.Pvec, u.Pvec
+	return u.P4 * v.P4 - pv.Dot(pu)
+}	
+
+// Invariant mass ('lorentz norm' of the 4-vector) 
 func (v *FourVec) M() (float64) {
-	return math.Sqrt(math.Pow(v.E, 2) - v.P2())
+	return math.Sqrt(v.Dot(*v))
 }
 
 // Get DeltaR
@@ -94,54 +130,46 @@ func (v *FourVec) DeltaPhi(u FourVec) (dphi float64) {
 }
 
 // Get 3D boost
-func (v *FourVec) GetBoost() (bx, by, bz float64){
-	bx = v.Px/v.E
-	by = v.Py/v.E
-	bz = v.Pz/v.E
-	return bx, by, bz
+func (v *FourVec) GetBoost() (b r3.Vector){
+	b = v.Pvec.Mul(1./v.P4)
+	return b
 }
 
 // Apply Lorentz boost
-func (v *FourVec) ApplyBoost(bx, by, bz float64) (vb FourVec){
+// (FIX-ME: improve notation since gamma2 != gamma*gamma)
+func (v *FourVec) ApplyBoost(b r3.Vector) (vb FourVec){
 
 	// Transformation parameters
-	b2     := bx*bx + by*by + bz*bz
+	v_p := v.Pvec 
+	b2     := b.Norm2()
+	bp     := b.Dot(v_p)
 	gamma  := 1.0 / math.Sqrt(1.0 - b2)
-	bp     := bx*v.Px + by*v.Py + bz*v.Pz
-	gamma2 := (gamma - 1.0)/b2;
+	gamma2 := (gamma - 1.0)/b2 
 
 	// Boost the 4-vector
-	vb.Px = v.Px + gamma2*bp*bx + gamma*bx*v.E
-	vb.Py = v.Py + gamma2*bp*by + gamma*by*v.E
-	vb.Pz = v.Pz + gamma2*bp*bz + gamma*bz*v.E
-	vb.E  = gamma*(v.E + bp)
+	vb.Pvec = v_p.Add( b.Mul(gamma2*bp + gamma*v.P4) )
+	vb.P4  = gamma*(v.P4 + bp)
 	return vb
 }
 
-// Four vector addition
+// Four-vector addition
 func (v *FourVec) Add(vec FourVec) (vsum FourVec) {
-	vsum.Px = v.Px + vec.Px
-	vsum.Py = v.Py + vec.Py
-	vsum.Pz = v.Pz + vec.Pz
-	vsum.E  = v.E  + vec.E
+	vsum.Pvec = v.Pvec.Add(vec.Pvec)
+	vsum.P4  = v.P4  + vec.P4
 	return vsum
 }
 
-// Four vector addition
+// Four-vector addition
 func (v *FourVec) Subtract(vec FourVec) (vdiff FourVec) {
-	vdiff.Px = v.Px - vec.Px
-	vdiff.Py = v.Py - vec.Py
-	vdiff.Pz = v.Pz - vec.Pz
-	vdiff.E  = v.E  - vec.E
+	vdiff.Pvec = v.Pvec.Sub(vec.Pvec)
+	vdiff.P4  = v.P4  - vec.P4
 	return vdiff
 }
 
-// Four vector addition
+// Four-vector addition
 func (v *FourVec) Multiply(a float64) (vprod FourVec) {
-	vprod.Px = a * v.Px
-	vprod.Py = a * v.Py
-	vprod.Pz = a * v.Pz
-	vprod.E  = a * v.E
+	vprod.Pvec = v.Pvec.Mul(a)
+	vprod.P4 = a * v.P4
 	return vprod
 }
 
