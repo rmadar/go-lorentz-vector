@@ -22,15 +22,15 @@ func main(){
 	print_4vec(vec_sum)
 
 	// Boost vec1 and check that the boost is (0, 0, 0) in its rest frame
-	bx, by, bz := vec1.GetBoost()
-	vec1_RF := vec1.ApplyBoost(-bx, -by, -bz)
-	bx, by, bz = vec1_RF.GetBoost()
+	boost := vec1.GetBoost()
+	vec1_RF := vec1.ApplyBoost(boost.Mul(-1))
+	boost_RF := vec1_RF.GetBoost()
 	fmt.Println("\nCheck the boost is (0, 0, 0) in the particle rest frame:")
-	fmt.Println(bx, by, bz)
+	fmt.Println(boost_RF)
 }
 
 
 func print_4vec(v lv.FourVec) {
-	fmt.Println(v.Px, v.Py, v.Pz, v.E)
+	fmt.Println(v.Px(), v.Py(), v.Pz(), v.E())
 	fmt.Println(v.M())
 }
