@@ -13,36 +13,28 @@ type FourVec struct {
 
 // Creator of the type FourVec using (px, py, pz, e)
 func NewFourVecPxPyPzE(px, py, pz, e float64) (v FourVec) {
-	v.Pvec.X = px
-	v.Pvec.Y = py
-	v.Pvec.Z = pz
+	v.Pvec = r3.Vector{px, py, pz}
 	v.P4 = e
 	return v
 }
 
 // Creator of the type FourVec using (px, py, pz, m)
 func NewFourVecPxPyPzM(px, py, pz, m float64) (v FourVec) {
-	v.Pvec.X = px
-	v.Pvec.Y = py
-	v.Pvec.Z = pz
+	v.Pvec = r3.Vector{px, py, pz}
 	v.P4 = math.Sqrt(v.P2() + math.Pow(m, 2))
 	return v
 }
 
 // Creator of type FourVec using (pT, Eta, Phi and M)
 func NewFourVecPtEtaPhiM(pt, eta, phi, m float64) (v FourVec) {
-	v.Pvec.X = pt * math.Cos(phi)
-	v.Pvec.Y = pt * math.Sin(phi)
-	v.Pvec.Z = pt * math.Sinh(eta)
+	v.Pvec = r3.Vector{pt*math.Cos(phi), pt*math.Sin(phi), pt*math.Sinh(eta)}
 	v.P4  = math.Sqrt(v.P2() + math.Pow(m, 2))
 	return v
 }
 
 // Creator of type FourVec using (pT, Eta, Phi and E)
 func NewFourVecPtEtaPhiE(pt, eta, phi, e float64) (v FourVec) {
-	v.Pvec.X = pt  * math.Cosh(eta)
-	v.Pvec.Y = eta * math.Sinh(eta)
-	v.Pvec.Z = phi * pt * math.Cos(phi) * v.Pvec.X
+	v.Pvec = r3.Vector{pt*math.Cos(phi), pt*math.Sin(phi), pt*math.Sinh(eta)}
 	v.P4 = e
 	return v
 }
@@ -80,8 +72,11 @@ func (v *FourVec) Eta() (float64){
 }
 
 // Get Phi
+// FIX-ME: need to check if the s1.Angle is [0, 2pi] as HEP convention
 func (v *FourVec) Phi() (float64){
-	return 
+	pt := r3.Vector{v.Px(), v.Py(), 0}
+        Ox := r3.Vector{1, 0, 0}
+        return Ox.Angle(pt).Radians()
 }
 
 // Get rapidity
@@ -120,19 +115,20 @@ func (v *FourVec) M() (float64) {
 }
 
 // Get DeltaR
-func (v *FourVec) DeltaR(u FourVec) (dr float64) {
-	return 1.0
+func (v *FourVec) DeltaR(u FourVec) (float64) {
+	dphi := v.Phi() - u.Phi()
+	deta := v.Eta() - u.Eta()
+	return math.Sqrt(dphi*dphi + deta*deta)
 }
 
 // Get DeltaPhi
-func (v *FourVec) DeltaPhi(u FourVec) (dphi float64) {
-	return 1.0
+func (v *FourVec) DeltaPhi(u FourVec) (float64) {
+	return math.Acos(math.Cos(v.Phi() - u.Phi()))
 }
 
 // Get 3D boost
-func (v *FourVec) GetBoost() (b r3.Vector){
-	b = v.Pvec.Mul(1./v.P4)
-	return b
+func (v *FourVec) GetBoost() (r3.Vector){
+	return v.Pvec.Mul(1./v.P4)
 }
 
 // Apply Lorentz boost
@@ -155,14 +151,14 @@ func (v *FourVec) ApplyBoost(b r3.Vector) (vb FourVec){
 // Four-vector addition
 func (v *FourVec) Add(vec FourVec) (vsum FourVec) {
 	vsum.Pvec = v.Pvec.Add(vec.Pvec)
-	vsum.P4  = v.P4  + vec.P4
+	vsum.P4 = v.P4 + vec.P4
 	return vsum
 }
 
 // Four-vector addition
 func (v *FourVec) Subtract(vec FourVec) (vdiff FourVec) {
 	vdiff.Pvec = v.Pvec.Sub(vec.Pvec)
-	vdiff.P4  = v.P4  - vec.P4
+	vdiff.P4 = v.P4 - vec.P4
 	return vdiff
 }
 
