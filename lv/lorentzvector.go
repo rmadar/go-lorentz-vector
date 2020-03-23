@@ -1,7 +1,9 @@
 package lv
 
 import (
+	"fmt"
 	"math"
+
 	"github.com/golang/geo/r3"
 )
 
@@ -12,10 +14,11 @@ type FourVec struct {
 }
 
 // Creator of the type FourVec using (px, py, pz, e)
-func NewFourVecPxPyPzE(px, py, pz, e float64) (v FourVec) {
-	v.Pvec = r3.Vector{px, py, pz}
-	v.P4 = e
-	return v
+func NewFourVecPxPyPzE(px, py, pz, e float64) FourVec {
+	return FourVec{
+		Pvec: r3.Vector{px, py, pz},
+		P4:   e,
+	}
 }
 
 // Creator of the type FourVec using (px, py, pz, m)
@@ -37,6 +40,12 @@ func NewFourVecPtEtaPhiE(pt, eta, phi, e float64) (v FourVec) {
 	v.Pvec = r3.Vector{pt * math.Cos(phi), pt * math.Sin(phi), pt * math.Sinh(eta)}
 	v.P4 = e
 	return v
+}
+
+func (v FourVec) String() string {
+	return fmt.Sprintf("FourVec{Px: %v, Py: %v, Pz: %v, E:%v, M:%v}",
+		v.Px(), v.Py(), v.Pz(), v.E(), v.M(),
+	)
 }
 
 // Get Px
