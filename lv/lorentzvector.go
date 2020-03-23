@@ -1,6 +1,7 @@
 package lv
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/golang/geo/r3"
@@ -39,6 +40,12 @@ func NewFourVecPtEtaPhiE(pt, eta, phi, e float64) (v FourVec) {
 	v.Pvec = r3.Vector{pt * math.Cos(phi), pt * math.Sin(phi), pt * math.Sinh(eta)}
 	v.P4 = e
 	return v
+}
+
+func (v FourVec) String() string {
+	return fmt.Sprintf("FourVec{Px: %v, Py: %v, Pz: %v, E:%v, M:%v}",
+		v.Px(), v.Py(), v.Pz(), v.E(), v.M(),
+	)
 }
 
 // Get Px
