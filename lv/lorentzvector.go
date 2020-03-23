@@ -22,24 +22,28 @@ func NewFourVecPxPyPzE(px, py, pz, e float64) FourVec {
 }
 
 // Creator of the type FourVec using (px, py, pz, m)
-func NewFourVecPxPyPzM(px, py, pz, m float64) (v FourVec) {
-	v.Pvec = r3.Vector{px, py, pz}
-	v.P4 = math.Sqrt(v.P2() + math.Pow(m, 2))
-	return v
+func NewFourVecPxPyPzM(px, py, pz, m float64) FourVec {
+	return FourVec{
+		Pvec: r3.Vector{px, py, pz},
+		P4:   math.Sqrt(px*px + py*py + pz*pz + m*m),
+	}
 }
 
 // Creator of type FourVec using (pT, Eta, Phi and M)
-func NewFourVecPtEtaPhiM(pt, eta, phi, m float64) (v FourVec) {
-	v.Pvec = r3.Vector{pt * math.Cos(phi), pt * math.Sin(phi), pt * math.Sinh(eta)}
-	v.P4 = math.Sqrt(v.P2() + math.Pow(m, 2))
-	return v
+func NewFourVecPtEtaPhiM(pt, eta, phi, m float64) FourVec {
+	p := r3.Vector{pt * math.Cos(phi), pt * math.Sin(phi), pt * math.Sinh(eta)}
+	return FourVec{
+		Pvec: p,
+		P4:   math.Sqrt(p.Norm2() + m*m),
+	}
 }
 
 // Creator of type FourVec using (pT, Eta, Phi and E)
-func NewFourVecPtEtaPhiE(pt, eta, phi, e float64) (v FourVec) {
-	v.Pvec = r3.Vector{pt * math.Cos(phi), pt * math.Sin(phi), pt * math.Sinh(eta)}
-	v.P4 = e
-	return v
+func NewFourVecPtEtaPhiE(pt, eta, phi, e float64) FourVec {
+	return FourVec{
+		Pvec: r3.Vector{pt * math.Cos(phi), pt * math.Sin(phi), pt * math.Sinh(eta)},
+		P4:   e,
+	}
 }
 
 func (v FourVec) String() string {
@@ -142,7 +146,7 @@ func (v *FourVec) GetBoost() r3.Vector {
 
 // Apply Lorentz boost
 // (FIX-ME: improve notation since gamma2 != gamma*gamma)
-func (v *FourVec) ApplyBoost(b r3.Vector) (vb FourVec) {
+func (v *FourVec) ApplyBoost(b r3.Vector) FourVec {
 
 	// Transformation parameters
 	v_p := v.Pvec
@@ -151,29 +155,25 @@ func (v *FourVec) ApplyBoost(b r3.Vector) (vb FourVec) {
 	gamma := 1.0 / math.Sqrt(1.0-b2)
 	gamma2 := (gamma - 1.0) / b2
 
-	// Boost the 4-vector
-	vb.Pvec = v_p.Add(b.Mul(gamma2*bp + gamma*v.P4))
-	vb.P4 = gamma * (v.P4 + bp)
-	return vb
+	// Return the boosted 4-vector
+	return FourVec{
+		Pvec: v_p.Add(b.Mul(gamma2*bp + gamma*v.P4)),
+		P4:   gamma * (v.P4 + bp),
+	}
 }
 
 // Four-vector addition
-func (v *FourVec) Add(vec FourVec) (vsum FourVec) {
-	vsum.Pvec = v.Pvec.Add(vec.Pvec)
-	vsum.P4 = v.P4 + vec.P4
-	return vsum
+func (v *FourVec) Add(vec FourVec) FourVec {
+	return FourVec{
+		Pvec: v.Pvec.Add(vec.Pvec),
+		P4:   v.P4 + vec.P4,
+	}
 }
 
-// Four-vector addition
-func (v *FourVec) Subtract(vec FourVec) (vdiff FourVec) {
-	vdiff.Pvec = v.Pvec.Sub(vec.Pvec)
-	vdiff.P4 = v.P4 - vec.P4
-	return vdiff
-}
-
-// Four-vector addition
-func (v *FourVec) Multiply(a float64) (vprod FourVec) {
-	vprod.Pvec = v.Pvec.Mul(a)
-	vprod.P4 = a * v.P4
-	return vprod
-}
+// Four-vector multiplication with a scalar
+func (v *FourVec) Multiply(a float64) FourVec {
+	return FourVec{
+		Pvec: v.Pvec.Mul(a),
+		P4:   a * v.P4,
+	}
+}	
