@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"localtest/madar/lv"
+	"github.com/rmadar/go-lorentz-vector/lv"
 
 	// To compare with go-hep-fmom
 	"go-hep.org/x/hep/fmom"
