@@ -2,6 +2,7 @@ package lv
 
 import (
 	"math"
+
 	"github.com/golang/geo/r3"
 )
 

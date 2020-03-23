@@ -2,4 +2,7 @@ module github.com/rmadar/go-lorentz-vector
 
 go 1.14
 
-require github.com/golang/geo v0.0.0-20200319012246-673a6f80352d
+require (
+	github.com/golang/geo v0.0.0-20200319012246-673a6f80352d
+	go-hep.org/x/hep v0.24.1
+)
