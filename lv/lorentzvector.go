@@ -13,10 +13,11 @@ type FourVec struct {
 }
 
 // Creator of the type FourVec using (px, py, pz, e)
-func NewFourVecPxPyPzE(px, py, pz, e float64) (v FourVec) {
-	v.Pvec = r3.Vector{px, py, pz}
-	v.P4 = e
-	return v
+func NewFourVecPxPyPzE(px, py, pz, e float64) FourVec {
+	return FourVec{
+		Pvec: r3.Vector{px, py, pz},
+		P4:   e,
+	}
 }
 
 // Creator of the type FourVec using (px, py, pz, m)
