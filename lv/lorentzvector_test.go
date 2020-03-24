@@ -17,8 +17,7 @@ func TestBoost(t *testing.T) {
 	vec3 = vec3.Add(vec2.Add(vec1))
 
 	// Boost vec1 and check that the boost is (0, 0, 0) in its rest frame
-	boost := vec1.GetBoost()
-	vec1RF := vec1.ApplyBoost(boost.Mul(-1))
+	vec1RF := vec1.ToRestFrame(vec1)
 	boostRF := vec1RF.GetBoost()
 	var zero r3.Vector
 	if boostRF != zero {
