@@ -9,8 +9,8 @@ import (
 
 func TestBoost(t *testing.T) {
 	// Create an object using (px, py, pz, E)
-	vec1 := lv.NewFourVecPxPyPzE(1., 2., 3., 4.)
-	vec2 := lv.NewFourVecPtEtaPhiM(1., 2., 3, 4)
+	vec1 := lv.NewFourVecPxPyPzE(1, 2, 3, 4)
+	vec2 := lv.NewFourVecPtEtaPhiM(1, 2, 3, 4)
 
 	// Combination of 4-vectors v1+v2+3*v1
 	vec3 := vec1.Multiply(3)
