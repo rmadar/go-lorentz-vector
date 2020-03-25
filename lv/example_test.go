@@ -21,3 +21,16 @@ func ExampleNewFourVecPtEtaPhiM() {
 	// Output:
 	// p = FourVec{Px: -0.9899924966004454, Py: 0.1411200080598672, Pz: 3.626860407847019, E:5.491276392425375, M:3.999999999999999}
 }
+
+
+func ExampleFourVec_ApplyBoost() {
+	p1  := lv.NewFourVecPxPyPzE(1, 2, 3,  4)
+	pCM := lv.NewFourVecPxPyPzE(5, 0, 0, 10)
+	p2  := p1.ApplyBoost( pCM.GetBoost() )
+	fmt.Printf("p1 = %v\n", p1)
+	fmt.Printf("p2 = %v\n", p2)
+	
+	// Output:
+	// p1 = FourVec{Px: 1, Py: 2, Pz: 3, E:4, M:1.4142135623730951}
+	// p2 = FourVec{Px: 3.4641016151377553, Py: 2, Pz: 3, E:5.196152422706633, M:1.4142135623730963}
+}
