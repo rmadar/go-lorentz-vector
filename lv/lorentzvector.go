@@ -192,7 +192,7 @@ func (v FourVec) ApplyBoost(beta r3.Vector) FourVec {
 }
 
 // Get the 4-vector in the frame where u=(0, m), aka the rest frame of u
-func (v FourVec) ToRestFrameOffff(u FourVec) FourVec {
+func (v FourVec) ToRestFrameOf(u FourVec) FourVec {
 	return v.ApplyBoost( u.GetBoost().Mul(-1) )
 }
 
