@@ -6,6 +6,16 @@ import (
 	"github.com/rmadar/go-lorentz-vector/lv"
 )
 
+
+func ExampleMytest(){
+	p := lv.NewFourVecPxPyPzE(1, 2, 3, 4)
+	fmt.Printf("p = %v\n", p)
+
+	// Output:
+	// p = FourVec{Px: 1, Py: 2, Pz: 3, E:4, M:1.4142135623730951}
+}
+
+
 func ExampleFourVec_NewFourVecPxPyPzE() {
 	p := lv.NewFourVecPxPyPzE(1, 2, 3, 4)
 	fmt.Printf("p = %v\n", p)
