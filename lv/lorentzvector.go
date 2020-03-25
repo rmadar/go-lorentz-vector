@@ -17,7 +17,6 @@ type FourVec struct {
 var err_PgtE string = "lv::Lorentz vector not physical: |p|>E"
 var err_boost string = "lv:: Boost not physical: |beta|>=1"
 
-
 // Creator of the type FourVec using (px, py, pz, e)
 func NewFourVecPxPyPzE(px, py, pz, e float64) FourVec {
 	v := FourVec{
@@ -106,12 +105,9 @@ func (v FourVec) Eta() float64 {
 	return 0.5 * math.Log((p+pz)/(p-pz))
 }
 
-// Get Phi, defined as the angle between the (px, py)-vector and the x-axis
-// FIX-ME: need to check if the s1.Angle is [0, 2pi] as HEP convention
+// Get Phi, defined as the angle between the (px, py)-vector and the x-axis in [-pi, pi[ interval
 func (v FourVec) Phi() float64 {
-	pt := r3.Vector{v.Px(), v.Py(), 0}
-	Ox := r3.Vector{1, 0, 0}
-	return Ox.Angle(pt).Radians()
+	return math.Atan2(v.Py(), v.Px())
 }
 
 // Get rapidity
@@ -151,14 +147,19 @@ func (v FourVec) M() float64 {
 
 // Get DeltaR = sqrt(dPhi*2 + dEta*2)
 func (v FourVec) DeltaR(u FourVec) float64 {
-	dphi := v.Phi() - u.Phi()
-	deta := v.Eta() - u.Eta()
+	dphi := v.DeltaPhi(u)
+	deta := v.DeltaEta(u)
 	return math.Sqrt(dphi*dphi + deta*deta)
 }
 
-// Get DeltaPhi
+// Get DeltaPhi angle between u and v in the (px, py)-plane, in [0, pi[
 func (v FourVec) DeltaPhi(u FourVec) float64 {
 	return math.Acos(math.Cos(v.Phi() - u.Phi()))
+}
+
+// Get DeltaEta
+func (v FourVec) DeltaEta(u FourVec) float64 {
+	return v.Eta() - u.Eta()
 }
 
 // Get vectorial boost beta=(px/E, py/E, pz/E)
