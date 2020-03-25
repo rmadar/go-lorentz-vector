@@ -69,8 +69,7 @@ func (v FourVec) String() string {
 	)
 }
 
-// Checking physics validity of the Lorentz vector
-// E>=p since E2 = p2 + m2
+// Checking physics validity of the Lorentz vector, ie |p|<=E (since E2 = p2 + m2)
 func (v FourVec) isPhysical() bool{
 	return v.P()<=v.E()
 }
@@ -90,7 +89,7 @@ func (v FourVec) Pz() float64 {
 	return v.Pvec.Z
 }
 
-// Get E
+// Get Energy
 func (v FourVec) E() float64 {
 	return v.P4
 }
@@ -101,7 +100,7 @@ func (v FourVec) Pt() float64 {
 	return math.Sqrt(px*px + py*py)
 }
 
-// Get Eta
+// Get pseudo-rapidity Eta
 func (v FourVec) Eta() float64 {
 	p, pz := v.P(), v.Pz()
 	return 0.5 * math.Log((p+pz)/(p-pz))
@@ -121,17 +120,17 @@ func (v FourVec) Rapidity() float64 {
 	return 0.5 * math.Log((e+pz)/(e-pz))
 }
 
-// Squared distance of the 3-vector
+// Squared norm of the 3-vector
 func (v FourVec) P2() float64 {
 	return v.Pvec.Norm2()
 }
 
-// Distance of the 3-vector
+// Norm of the 3-vector, ie momentum
 func (v FourVec) P() float64 {
 	return v.Pvec.Norm()
 }
 
-// Transverse energy
+// Transverse energy defined as ET = E*pT/p
 func (v FourVec) Et() float64 {
 	e2 := v.E() * v.E()
 	pt2 := v.Pt() * v.Pt()
@@ -139,7 +138,7 @@ func (v FourVec) Et() float64 {
 	return math.Sqrt(e2 * pt2 / p2)
 }
 
-// Lorentz scalar product
+// Lorentz scalar product defined as v1.v2 = p1.dot(p2) - E1*E3
 func (v FourVec) Dot(u FourVec) float64 {
 	pv, pu := v.Pvec, u.Pvec
 	return u.P4*v.P4 - pv.Dot(pu)
@@ -150,7 +149,7 @@ func (v FourVec) M() float64 {
 	return math.Sqrt(v.Dot(v))
 }
 
-// Get DeltaR
+// Get DeltaR = sqrt(dPhi*2 + dEta*2)
 func (v FourVec) DeltaR(u FourVec) float64 {
 	dphi := v.Phi() - u.Phi()
 	deta := v.Eta() - u.Eta()
@@ -162,16 +161,14 @@ func (v FourVec) DeltaPhi(u FourVec) float64 {
 	return math.Acos(math.Cos(v.Phi() - u.Phi()))
 }
 
-// Get 3D boost
+// Get vectorial boost beta=(px/E, py/E, pz/E)
 func (v FourVec) GetBoost() r3.Vector {
 	return v.Pvec.Mul(1. / v.P4)
 }
 
-// Apply vectorial Lorentz boost (|beta|<1)
-//  $$
+// Apply vectorial Lorentz boost (|beta|<1), defined as
 //  p' = p + [(gamma-1)/beta2 * (p.beta) + gamma*E] * beta
 //  E' = gamma * (E+p.beta)
-//  $$
 func (v FourVec) ApplyBoost(beta r3.Vector) FourVec {
 
 	// First check that v<c
@@ -194,7 +191,7 @@ func (v FourVec) ApplyBoost(beta r3.Vector) FourVec {
 	}
 }
 
-// Get the 4-vector in the frame where u=0 (rest frame)
+// Get the 4-vector in the frame where u=(0, m), aka the rest frame of u
 func (v FourVec) ToRestFrame(u FourVec) FourVec {
 	return v.ApplyBoost( u.GetBoost().Mul(-1) )
 }
