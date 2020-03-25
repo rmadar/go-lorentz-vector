@@ -107,7 +107,7 @@ func (v FourVec) Eta() float64 {
 	return 0.5 * math.Log((p+pz)/(p-pz))
 }
 
-// Get Phi
+// Get Phi, defined as the angle between the (px, py)-vector and the x-axis
 // FIX-ME: need to check if the s1.Angle is [0, 2pi] as HEP convention
 func (v FourVec) Phi() float64 {
 	pt := r3.Vector{v.Px(), v.Py(), 0}
@@ -168,8 +168,10 @@ func (v FourVec) GetBoost() r3.Vector {
 }
 
 // Apply vectorial Lorentz boost (|beta|<1)
+//  $$
 //  p' = p + [(gamma-1)/beta2 * (p.beta) + gamma*E] * beta
 //  E' = gamma * (E+p.beta)
+//  $$
 func (v FourVec) ApplyBoost(beta r3.Vector) FourVec {
 
 	// First check that v<c
