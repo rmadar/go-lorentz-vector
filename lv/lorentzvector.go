@@ -3,7 +3,7 @@ package lv
 import (
 	"fmt"
 	"math"
-
+	
 	"github.com/golang/geo/r3"
 )
 
@@ -13,11 +13,22 @@ type FourVec struct {
 	P4   float64
 }
 
+// Errors message
+var err_PgtE string = "lv::Lorentz vector not physical: |p|>E"
+var err_boost string = "lv:: Boost not physical: |beta|>=1"
+
+
 // Creator of the type FourVec using (px, py, pz, e)
 func NewFourVecPxPyPzE(px, py, pz, e float64) FourVec {
-	return FourVec{
+	v := FourVec{
 		Pvec: r3.Vector{px, py, pz},
 		P4:   e,
+	}
+	if v.isPhysical() {
+		return v
+	} else {
+		fmt.Printf("v = %v\n", v)
+		panic(err_PgtE)
 	}
 }
 
@@ -26,6 +37,20 @@ func NewFourVecPxPyPzM(px, py, pz, m float64) FourVec {
 	return FourVec{
 		Pvec: r3.Vector{px, py, pz},
 		P4:   math.Sqrt(px*px + py*py + pz*pz + m*m),
+	}
+}
+
+// Creator of type FourVec using (pT, Eta, Phi and E)
+func NewFourVecPtEtaPhiE(pt, eta, phi, e float64) FourVec {
+	v := FourVec{
+		Pvec: r3.Vector{pt * math.Cos(phi), pt * math.Sin(phi), pt * math.Sinh(eta)},
+		P4:   e,
+	}
+	if v.isPhysical() {
+		return v
+	} else {
+		fmt.Printf("v = %v\n", v)
+		panic(err_PgtE)
 	}
 }
 
@@ -38,18 +63,16 @@ func NewFourVecPtEtaPhiM(pt, eta, phi, m float64) FourVec {
 	}
 }
 
-// Creator of type FourVec using (pT, Eta, Phi and E)
-func NewFourVecPtEtaPhiE(pt, eta, phi, e float64) FourVec {
-	return FourVec{
-		Pvec: r3.Vector{pt * math.Cos(phi), pt * math.Sin(phi), pt * math.Sinh(eta)},
-		P4:   e,
-	}
-}
-
 func (v FourVec) String() string {
 	return fmt.Sprintf("FourVec{Px: %v, Py: %v, Pz: %v, E:%v, M:%v}",
 		v.Px(), v.Py(), v.Pz(), v.E(), v.M(),
 	)
+}
+
+// Checking physics validity of the Lorentz vector
+// E>=p since E2 = p2 + m2
+func (v FourVec) isPhysical() bool{
+	return v.P()<=v.E()
 }
 
 // Get Px
@@ -144,27 +167,34 @@ func (v FourVec) GetBoost() r3.Vector {
 	return v.Pvec.Mul(1. / v.P4)
 }
 
-// Apply Lorentz boost
-// (FIX-ME: improve notation since gamma2 != gamma*gamma)
-func (v FourVec) ApplyBoost(b r3.Vector) FourVec {
+// Apply vectorial Lorentz boost (|beta|<1)
+//  p' = p + [(gamma-1)/beta2 * (p.beta) + gamma*E] * beta
+//  E' = gamma * (E+p.beta)
+func (v FourVec) ApplyBoost(beta r3.Vector) FourVec {
 
-	// Transformation parameters
-	v_p := v.Pvec
-	b2 := b.Norm2()
-	bp := b.Dot(v_p)
-	gamma := 1.0 / math.Sqrt(1.0-b2)
-	gamma2 := (gamma - 1.0) / b2
-
+	// First check that v<c
+	if beta.Norm()>=1 {
+		fmt.Println("beta=", beta)
+		panic(err_boost)
+	}
+	
+	// Lorentz transformation parameters
+	p, E := v.Pvec, v.P4
+	beta2 := beta.Norm2()
+	beta_dot_p := beta.Dot(p)
+	gamma := 1.0 / math.Sqrt(1.0-beta2)
+	alpha := (gamma - 1.0) / beta2
+	
 	// Return the boosted 4-vector
 	return FourVec{
-		Pvec: v_p.Add(b.Mul(gamma2*bp + gamma*v.P4)),
-		P4:   gamma * (v.P4 + bp),
+		Pvec: p.Add(beta.Mul(alpha*beta_dot_p + gamma*E)),
+		P4:   gamma * (E + beta_dot_p),
 	}
 }
 
 // Get the 4-vector in the frame where u=0 (rest frame)
 func (v FourVec) ToRestFrame(u FourVec) FourVec {
-	return v.ApplyBoost(u.GetBoost().Mul(-1))
+	return v.ApplyBoost( u.GetBoost().Mul(-1) )
 }
 
 // Four-vector addition
