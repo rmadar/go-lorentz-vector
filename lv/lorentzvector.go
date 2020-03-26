@@ -151,7 +151,7 @@ func (v FourVec) M() float64 {
 	return signedSqrt(v.M2())
 }
 
-// Squared transverse mass ('lorentz norm' of the 4-vector with pZ is set to 0)
+// Squared transverse mass ('lorentz norm' of the 4-vector with Pz set to zero)
 func (v FourVec) MT2() float64 {
 	u := NewFourVecPxPyPzE(v.Px(), v.Py(), 0.0, v.E())
 	return u.Dot(u)
