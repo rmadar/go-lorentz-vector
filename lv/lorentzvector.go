@@ -15,7 +15,8 @@ type FourVec struct {
 
 // Errors message
 var err_PgtE string = "lv::Lorentz vector not physical: |p|>E"
-var err_boost string = "lv:: Boost not physical: |beta|>=1"
+var err_boost string = "lv::Boost not physical: |beta|>=1"
+var err_invM string = "lv::Squated invariant mass negative (below the 1e-5 tolerance)"
 
 // Creator of the type FourVec using (px, py, pz, e)
 func NewFourVecPxPyPzE(px, py, pz, e float64) FourVec {
@@ -140,9 +141,25 @@ func (v FourVec) Dot(u FourVec) float64 {
 	return u.P4*v.P4 - pv.Dot(pu)
 }
 
-// Invariant mass ('lorentz norm' of the 4-vector)
+// Squared invariant mass ('lorentz norm' of the 4-vector)
+func (v FourVec) M2() float64 {
+	return v.Dot(v)
+}
+
+// Invariant mass: m=sqrt(M2) if M2>0, else m=-sqrt(-M2)
 func (v FourVec) M() float64 {
-	return math.Sqrt(v.Dot(v))
+	return signedSqrt(v.M2())
+}
+
+// Squared transverse mass ('lorentz norm' of the 4-vector with pZ is set to 0)
+func (v FourVec) MT2() float64 {
+	u := NewFourVecPxPyPzE(v.Px(), v.Py(), 0.0, v.E())
+	return u.Dot(u)
+}
+
+// Invariant mass: mT=sqrt(MT2) if M2>0, else mT=-sqrt(-MT2)
+func (v FourVec) MT() float64 {
+	return signedSqrt(v.MT2())
 }
 
 // Get DeltaR = sqrt(dPhi*2 + dEta*2)
@@ -212,3 +229,12 @@ func (v FourVec) Multiply(a float64) FourVec {
 		P4:   a * v.P4,
 	}
 }	
+
+// Signed root square function: sign(x)*sqrt(abs(x))
+func signedSqrt(x float64) float64 {
+	if x<0 {
+		return -math.Sqrt(-x)
+	} else {
+		return math.Sqrt(x)
+	}
+}
