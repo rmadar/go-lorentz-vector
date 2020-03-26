@@ -17,10 +17,10 @@ func TestBoost(t *testing.T) {
 	vec3 = vec3.Add(vec2.Add(vec1))
 
 	// Boost vec1 and check that the boost is (0, 0, 0) in its rest frame
-	vec1RF := vec1.ToRestFrame(vec1)
+	vec1RF := vec1.ToRestFrameOf(vec1)
 	boostRF := vec1RF.GetBoost()
 	var zero r3.Vector
 	if boostRF != zero {
-		t.Fatalf("invalid boost. got=%v, want=%v", boostRF, zero)
+		t.Fatalf("Invalid boost. got=%v, want=%v", boostRF, zero)
 	}
 }
