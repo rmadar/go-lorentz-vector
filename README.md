@@ -1,6 +1,8 @@
 # Go package for Lorentz vector
 
-### Word of caution
+The full documentation is available on [godoc.org](https://godoc.org/github.com/rmadar/go-lorentz-vector/lv).
+
+### A word of caution
 
 This repository is primarily to practice. The stucture is probably not optimal for a proper package structure, but this might evolve. For now, it is just to better undertand how to create/manipulate the go langage. The maths are mostly taken from [TLorentzVector ROOT class](https://github.com/root-project/root/blob/master/math/physics/src/TLorentzVector.cxx).
 
@@ -12,7 +14,3 @@ The repository is structured as follow:
   + `lv/lorentzvector.go`: code of the package `lv`
   + `cmd/show-lv/main.go`: usage example of the `lv` package
 
-### To-do
- + [ ] cross-check the definition of `gamma2` since it is not `gamma*gamma`, change the variable name
- + [ ] cross-check the `v.Phi()` value if this is in [0, 2pi] as in HEP convention
- + [ ] compare values, boosted vectors, etc with other existing codes
