@@ -13,6 +13,9 @@ type FourVec struct {
 	P4   float64
 }
 
+// Numerical tolerence of 1 keV (e.g. |p| is allowed to exceed E by 1 keV)
+const precision float64 = 1e-6
+
 // Errors message
 var err_PgtE string = "lv::Lorentz vector not physical: |p|>E"
 var err_boost string = "lv::Boost not physical: |beta|>=1"
@@ -71,7 +74,7 @@ func (v FourVec) String() string {
 
 // Checking physics validity of the Lorentz vector, ie |p|<=E (since E2 = p2 + m2)
 func (v FourVec) isPhysical() bool{
-	return v.P()<=v.E()
+	return v.P()<=v.E()+precision
 }
 
 // Get Px
