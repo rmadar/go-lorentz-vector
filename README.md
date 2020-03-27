@@ -11,6 +11,6 @@ This repository is primarily to practice. The stucture is probably not optimal f
 The lorentz vector object is a four-component object used in high energy physics, and is implemented as a 3D vector and a fourth component `{r3.Vector, P4}` object. The package relies then naturally on `github.com/golang/geo/r3` package (3D vectors).
 
 The repository is structured as follow:
-  + `lv/lorentzvector.go`: code of the package `lv`
-  + `cmd/show-lv/main.go`: usage example of the `lv` package
+  + `lv/lorentzvector.go`: code of the `lv` package
+  + `show-lv/main.go`: short code showing how `lv` package can be used
 
