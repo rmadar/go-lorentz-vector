@@ -191,7 +191,8 @@ func (v FourVec) ApplyBoost(beta r3.Vector) FourVec {
 
 	// First check that v<c
 	if beta.Norm()>=1 {
-		fmt.Println("beta=", beta)
+		fmt.Println("beta  =", beta)
+		fmt.Println("|beta|=", beta.Norm())
 		panic(err_boost)
 	}
 	
