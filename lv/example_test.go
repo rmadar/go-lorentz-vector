@@ -3,7 +3,8 @@ package lv_test
 import (
 	"fmt"
 
-	"github.com/golang/geo/r3"
+	"gonum.org/v1/gonum/spatial/r3"
+
 	"github.com/rmadar/go-lorentz-vector/lv"
 )
 
@@ -26,7 +27,7 @@ func ExampleNewFourVecPtEtaPhiM() {
 
 func ExampleFourVec_ApplyBoost() {
 	p1 := lv.NewFourVecPxPyPzE(1, 2, 3,  4)
-	p2 := p1.ApplyBoost( r3.Vector{0.0, 0.0, 0.99} )
+	p2 := p1.ApplyBoost( r3.Vec{0.0, 0.0, 0.99} )
 	fmt.Printf("p1 = %v\n", p1)
 	fmt.Printf("p2 = %v\n", p2)
 	

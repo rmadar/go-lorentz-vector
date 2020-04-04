@@ -31,13 +31,13 @@ func quickTest() {
 	fmt.Println("\nVec2:", vec2)
 
 	// Combination of 4-vectors v1+v2+3*v1
-	vec3 := vec1.Multiply(3)
+	vec3 := vec1.Scale(3)
 	vec_sum := vec3.Add(vec2.Add(vec1))
 	fmt.Println("\nVec[sum]:", vec_sum)
 
 	// Boost vec1 and check that the boost is (0, 0, 0) in its rest frame
 	boost := vec1.GetBoost()
-	vec1_RF := vec1.ApplyBoost(boost.Mul(-1))
+	vec1_RF := vec1.ApplyBoost(boost.Scale(-1))
 	boost_RF := vec1_RF.GetBoost()
 	fmt.Println("\nCheck the boost is (0, 0, 0) in the particle rest frame:",
 		boost_RF,
