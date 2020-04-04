@@ -17,9 +17,12 @@ type FourVec struct {
 const precision float64 = 1e-6
 
 // Errors message
-var err_PgtE string = "lv::Lorentz vector not physical: |p|>E"
-var err_boost string = "lv::Boost not physical: |beta|>=1"
-var err_invM string = "lv::Squated invariant mass negative (below the 1e-5 tolerance)"
+var (
+	err_PgtE string   = "lv::Lorentz vector not physical: |p|>E"
+	err_boost string  = "lv::Boost not physical: |beta|>=1"
+	err_invM string   = "lv::Squated invariant mass negative (below the 1e-5 tolerance)"
+	err_pTnull string = "lv::NewPtEtaPhi[M,E] pT is zero, Eta NaN (incoming parton?). Please, use NewPxPyPz[E,M]()"
+)
 
 // Creator of the type FourVec using (px, py, pz, e)
 func NewFourVecPxPyPzE(px, py, pz, e float64) FourVec {
@@ -49,6 +52,10 @@ func NewFourVecPtEtaPhiE(pt, eta, phi, e float64) FourVec {
 		Pvec: r3.Vector{pt * math.Cos(phi), pt * math.Sin(phi), pt * math.Sinh(eta)},
 		P4:   e,
 	}
+	if pt<=0 {
+		fmt.Printf("v = %v\n", v)
+		panic(err_pTnull)
+	}
 	if v.isPhysical() {
 		return v
 	} else {
@@ -60,6 +67,10 @@ func NewFourVecPtEtaPhiE(pt, eta, phi, e float64) FourVec {
 // Creator of type FourVec using (pT, Eta, Phi and M)
 func NewFourVecPtEtaPhiM(pt, eta, phi, m float64) FourVec {
 	p := r3.Vector{pt * math.Cos(phi), pt * math.Sin(phi), pt * math.Sinh(eta)}
+	if pt<=0 {
+		fmt.Printf("Pvec = %v\n", p)
+		panic(err_pTnull)
+	}
 	return FourVec{
 		Pvec: p,
 		P4:   math.Sqrt(p.Norm2() + m*m),
@@ -106,6 +117,11 @@ func (v FourVec) Pt() float64 {
 // Get pseudo-rapidity Eta
 func (v FourVec) Eta() float64 {
 	p, pz := v.P(), v.Pz()
+	if p==pz {
+		fmt.Printf("v = %v\n", v)
+		panic(err_pTnull)
+	}
+	
 	return 0.5 * math.Log((p+pz)/(p-pz))
 }
 
