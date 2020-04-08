@@ -24,7 +24,6 @@ func ExampleNewFourVecPtEtaPhiM() {
 	// p = FourVec{Px: -0.9899924966004454, Py: 0.1411200080598672, Pz: 3.626860407847019, E:5.491276392425375, M:3.999999999999999}
 }
 
-
 func ExampleFourVec_ApplyBoost() {
 	p1 := lv.NewFourVecPxPyPzE(1, 2, 3,  4)
 	p2 := p1.ApplyBoost( r3.Vec{0.0, 0.0, 0.99} )

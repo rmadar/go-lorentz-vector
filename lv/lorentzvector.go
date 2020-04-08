@@ -52,7 +52,7 @@ func NewFourVecPtEtaPhiE(pt, eta, phi, e float64) FourVec {
 		Pvec: r3.Vec{pt * math.Cos(phi), pt * math.Sin(phi), pt * math.Sinh(eta)},
 		P4:   e,
 	}
-	if pt<=0 {
+	if v.IsLongitudinal() {
 		fmt.Printf("v = %v\n", v)
 		panic(err_pTnull)
 	}
@@ -67,13 +67,15 @@ func NewFourVecPtEtaPhiE(pt, eta, phi, e float64) FourVec {
 // Creator of type FourVec using (pT, Eta, Phi and M)
 func NewFourVecPtEtaPhiM(pt, eta, phi, m float64) FourVec {
 	p := r3.Vec{pt * math.Cos(phi), pt * math.Sin(phi), pt * math.Sinh(eta)}
-	if pt<=0 {
-		fmt.Printf("Pvec = %v\n", p)
-		panic(err_pTnull)
-	}
-	return FourVec{
+	v := FourVec{
 		Pvec: p,
 		P4:   math.Sqrt(r3.Norm2(p) + m*m),
+	}
+	if v.IsLongitudinal() {
+		fmt.Printf("Pvec = %v\n", v)
+		panic(err_pTnull)
+	} else {
+		return v
 	}
 }
 
@@ -112,11 +114,10 @@ func (v FourVec) Pt() float64 {
 // Get pseudo-rapidity Eta
 func (v FourVec) Eta() float64 {
 	p, pz := v.P(), v.Pz()
-	if p==pz {
+	if v.IsLongitudinal() {
 		fmt.Printf("v = %v\n", v)
 		panic(err_pTnull)
 	}
-	
 	return 0.5 * math.Log((p+pz)/(p-pz))
 }
 
@@ -245,9 +246,12 @@ func (v FourVec) Scale(a float64) FourVec {
 	}
 }	
 
-// Return true if the 4-vector is like purely longitudinal, ie(0, 0, px, E)
+// Return true if the 4-vector is like purely longitudinal, ie v ~ (0, 0, Pz, E)
+// which leads to an infinite pseudo-rapidity. This is usually the
+// case for incoming parton.
+// Practically, it returns 'true' if Pt < 1 keV, being the internal precision
 func (v FourVec) IsLongitudinal() bool {
-	return v.Pt() < math.Abs(v.Pz()) + precision
+	return v.Pt() < precision
 }
 
 // Signed root square function: sign(x)*sqrt(abs(x))
