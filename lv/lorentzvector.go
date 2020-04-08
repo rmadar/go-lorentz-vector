@@ -83,11 +83,6 @@ func (v FourVec) String() string {
 	)
 }
 
-// Checking physics validity of the Lorentz vector, ie |p|<=E (since E2 = p2 + m2)
-func (v FourVec) isPhysical() bool{
-	return v.P()<=v.E()+precision
-}
-
 // Get Px
 func (v FourVec) Px() float64 {
 	return v.Pvec.X
@@ -250,6 +245,11 @@ func (v FourVec) Scale(a float64) FourVec {
 	}
 }	
 
+// Return true if the 4-vector is like purely longitudinal, ie(0, 0, px, E)
+func (v FourVec) IsLongitudinal() bool {
+	return v.Pt() < math.Abs(v.Pz()) + precision
+}
+
 // Signed root square function: sign(x)*sqrt(abs(x))
 func signedSqrt(x float64) float64 {
 	if x<0 {
@@ -257,4 +257,9 @@ func signedSqrt(x float64) float64 {
 	} else {
 		return math.Sqrt(x)
 	}
+}
+
+// Checking physics validity of the Lorentz vector, ie |p|<=E (since E2 = p2 + m2)
+func (v FourVec) isPhysical() bool{
+	return v.P()<=v.E()+precision
 }
