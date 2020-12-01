@@ -18,9 +18,8 @@ const precision float64 = 1e-5
 
 // Errors message
 var (
-	err_PgtE string   = "lv::Lorentz vector not physical: |p|>E"
-	err_boost string  = "lv::Boost not physical: |beta|>=1"
-	err_invM string   = "lv::Squated invariant mass negative (below the 1e-5 tolerance)"
+	err_PgtE string   = "lv::Lorentz vector not physical: |p| exceed E by %v"
+	err_boost string  = "lv::Boost not physical: |beta| exceed 1 by %v"
 	err_pTnull string = "lv::NewPtEtaPhi[M,E] pT is zero, Eta NaN (incoming parton?). Please, use NewPxPyPz[E,M]()"
 )
 
@@ -34,7 +33,8 @@ func NewFourVecPxPyPzE(px, py, pz, e float64) FourVec {
 		return v
 	} else {
 		fmt.Printf("v = %v\n", v)
-		panic(err_PgtE)
+		errorString := fmt.Sprintf(err_PgtE, v.P() - v.E())
+		panic(errorString)
 	}
 }
 
@@ -60,7 +60,8 @@ func NewFourVecPtEtaPhiE(pt, eta, phi, e float64) FourVec {
 		return v
 	} else {
 		fmt.Printf("v = %v\n", v)
-		panic(err_PgtE)
+		errorString := fmt.Sprintf(err_PgtE, v.P() - v.E())
+		panic(errorString)
 	}
 }
 
@@ -72,7 +73,7 @@ func NewFourVecPtEtaPhiM(pt, eta, phi, m float64) FourVec {
 		P4:   math.Sqrt(r3.Norm2(p) + m*m),
 	}
 	if v.IsLongitudinal() {
-		fmt.Printf("Pvec = %v\n", v)
+		fmt.Printf("v = %v\n", v)
 		panic(err_pTnull)
 	} else {
 		return v
