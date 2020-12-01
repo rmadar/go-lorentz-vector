@@ -13,8 +13,8 @@ type FourVec struct {
 	P4   float64
 }
 
-// Numerical tolerence of 1 keV (e.g. |p| is allowed to exceed E by 1 keV)
-const precision float64 = 1e-6
+// Numerical tolerence of 10 keV (e.g. |p| is allowed to exceed E by 10 keV)
+const precision float64 = 1e-5
 
 // Errors message
 var (
@@ -249,7 +249,7 @@ func (v FourVec) Scale(a float64) FourVec {
 // Return true if the 4-vector is like purely longitudinal, ie v ~ (0, 0, Pz, E)
 // which leads to an infinite pseudo-rapidity. This is usually the
 // case for incoming parton.
-// Practically, it returns 'true' if Pt < 1 keV, being the internal precision
+// Practically, it returns 'true' if Pt < 10 keV, being the internal precision
 func (v FourVec) IsLongitudinal() bool {
 	return v.Pt() < precision
 }
