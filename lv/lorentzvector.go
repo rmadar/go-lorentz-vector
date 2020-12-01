@@ -2,6 +2,7 @@ package lv
 
 import (
 	"fmt"
+	"log"
 	"math"
 
 	"gonum.org/v1/gonum/spatial/r3"
@@ -18,8 +19,8 @@ const precision float64 = 1e-5
 
 // Errors message
 var (
-	err_PgtE string   = "lv::Lorentz vector not physical: |p| exceed E by %v"
-	err_boost string  = "lv::Boost not physical: |beta| exceed 1 by %v"
+	err_PgtE string   = "lv::Lorentz vector not physical: |p| exceed E by %v.\n %v\n Scaling p."
+	err_boost string  = "lv::Boost not physical: |beta| exceed 1 by %v.\n %v.\n Scaling p."
 	err_pTnull string = "lv::NewPtEtaPhi[M,E] pT is zero, Eta NaN (incoming parton?). Please, use NewPxPyPz[E,M]()"
 )
 
@@ -32,9 +33,9 @@ func NewFourVecPxPyPzE(px, py, pz, e float64) FourVec {
 	if v.isPhysical() {
 		return v
 	} else {
-		fmt.Printf("v = %v\n", v)
-		errorString := fmt.Sprintf(err_PgtE, v.P() - v.E())
-		panic(errorString)
+		log.Printf(err_PgtE, v.P() - v.E(), v)
+		v.correctP()
+		return v
 	}
 }
 
@@ -59,9 +60,9 @@ func NewFourVecPtEtaPhiE(pt, eta, phi, e float64) FourVec {
 	if v.isPhysical() {
 		return v
 	} else {
-		fmt.Printf("v = %v\n", v)
-		errorString := fmt.Sprintf(err_PgtE, v.P() - v.E())
-		panic(errorString)
+		log.Printf(err_PgtE, v.P() - v.E(), v)
+		v.correctP()
+		return v
 	}
 }
 
@@ -207,9 +208,8 @@ func (v FourVec) ApplyBoost(beta r3.Vec) FourVec {
 
 	// First check that v<c
 	if r3.Norm(beta)>=1 {
-		fmt.Println("beta  =", beta)
-		fmt.Println("|beta|=", r3.Norm(beta))
-		panic(err_boost)
+		log.Println(err_boost, r3.Norm(beta)-1, beta)
+		v.correctP()
 	}
 	
 	// Lorentz transformation parameters
@@ -265,6 +265,12 @@ func signedSqrt(x float64) float64 {
 }
 
 // Checking physics validity of the Lorentz vector, ie |p|<=E (since E2 = p2 + m2)
-func (v FourVec) isPhysical() bool{
+func (v FourVec) isPhysical() bool {
 	return v.P()<=v.E()+precision
+}
+
+// Scale (px, py, pz) in case |p| > E (by some numerical tolerance)
+func (v *FourVec) correctP() {
+	s := v.P() / v.E()
+	v.Pvec = v.Pvec.Scale(s);
 }
