@@ -1,6 +1,6 @@
-# Go package for Lorentz vector
+**For manipulating Lorentz vectors, I recommand to use the maintained package `go-hep.org/x/hep/fmom` ([documentation](https://godoc.org/go-hep.org/x/hep/fmom))**
 
-**For manipulating Lorentz vectors, I recommand to use the maintained package `go-hep.org/x/hep/fmom` ([documentation](https://godoc.org/go-hep.org/x/hep/fmom))
+# Go package for Lorentz vector
 
 The full documentation is available on [godoc.org](https://godoc.org/github.com/rmadar/go-lorentz-vector/lv).
 
